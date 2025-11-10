@@ -1,8 +1,7 @@
 from django.db import models
-
 from django.contrib.auth import get_user_model
 
-
+# Получаем модель пользователя один раз
 User = get_user_model()
 
 
@@ -106,4 +105,4 @@ class Post(PublishedCreatedModel):
 
     def __str__(self):
         return self.title[:30]
-    
+        
