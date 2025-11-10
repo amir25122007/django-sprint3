@@ -104,4 +104,3 @@ class Post(PublishedCreatedModel):
 
     def __str__(self):
         return self.title[:30]
-        
