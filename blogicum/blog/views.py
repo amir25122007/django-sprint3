@@ -1,49 +1,44 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
-from .models import Post, Category
+
+from blog.constants import POSTS_PER_PAGE
+from blog.models import Category, Post
+
+
+def get_posts_queryset():
+    """Возвращает базовый QuerySet для опубликованных постов."""
+    return Post.objects.filter(
+        is_published=True,
+        category__is_published=True,
+        pub_date__lte=timezone.now()
+    ).select_related('category', 'author', 'location')
 
 
 def index(request):
     """Главная страница - выводит пять последних опубликованных постов."""
-    template = 'blog/index.html'
-
-    post_list = Post.objects.filter(
-        is_published=True,
-        category__is_published=True,
-        pub_date__lte=timezone.now()
-    ).select_related(
-        'category', 'author', 'location'
-    ).order_by('-pub_date')[:5]
+    post_list = get_posts_queryset().order_by('-pub_date')[:POSTS_PER_PAGE]
 
     context = {
         'post_list': post_list,
     }
-    return render(request, template, context)
+    return render(request, 'blog/index.html', context)
 
 
 def post_detail(request, post_id):
     """Детальная страница поста с проверкой всех условий."""
-    template = 'blog/detail.html'
-
     post = get_object_or_404(
-        Post.objects.filter(
-            is_published=True,
-            category__is_published=True,
-            pub_date__lte=timezone.now(),
-            pk=post_id
-        ).select_related('category', 'author', 'location')
+        get_posts_queryset(),
+        pk=post_id
     )
 
     context = {
         'post': post,
     }
-    return render(request, template, context)
+    return render(request, 'blog/detail.html', context)
 
 
 def category_posts(request, category_slug):
     """Страница с постами определенной категории."""
-    template = 'blog/category.html'
-
     category = get_object_or_404(
         Category.objects.filter(
             is_published=True,
@@ -51,16 +46,12 @@ def category_posts(request, category_slug):
         )
     )
 
-    post_list = Post.objects.filter(
-        category=category,
-        is_published=True,
-        pub_date__lte=timezone.now()
-    ).select_related(
-        'category', 'author', 'location'
+    post_list = get_posts_queryset().filter(
+        category=category
     ).order_by('-pub_date')
 
     context = {
         'category': category,
         'post_list': post_list,
     }
-    return render(request, template, context)
+    return render(request, 'blog/category.html', context)
