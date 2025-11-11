@@ -1,5 +1,8 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
+
+from blog.constants import MAGIC_NUMBER
+
 
 User = get_user_model()
 
@@ -43,7 +46,7 @@ class Category(PublishedCreatedModel):
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.title[:30]
+        return self.title[:MAGIC_NUMBER]
 
 
 class Location(PublishedCreatedModel):
@@ -57,7 +60,7 @@ class Location(PublishedCreatedModel):
         verbose_name_plural = 'Местоположения'
 
     def __str__(self):
-        return self.name[:30]
+        return self.name[:MAGIC_NUMBER]
 
 
 class Post(PublishedCreatedModel):
@@ -103,4 +106,4 @@ class Post(PublishedCreatedModel):
         ordering = ['-pub_date']
 
     def __str__(self):
-        return self.title[:30]
+        return self.title[:MAGIC_NUMBER]
